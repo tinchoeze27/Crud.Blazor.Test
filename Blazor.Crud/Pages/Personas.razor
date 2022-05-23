@@ -1,0 +1,74 @@
+﻿@page "/lista"
+@using Blazor.Crud.Data
+@using Blazor.Crud.Models
+@inject Blazor.Crud.Interface.IPersona pmapper
+<link rel="stylesheet" href="css/lista.css">
+
+<title>CRUD: Personas</title>
+<div id="contenedor">
+<form class="form" id="carga">
+	<input type="text" class="form-control" placeholder="Nombre" @bind-value=P.Nombre />
+	<input type="text" class="form-control" placeholder="Apellido" @bind-value=P.Apellido />
+	<input type="text" class="form-control" placeholder="Ciudad" @bind-value=P.Ciudad />
+	<button type="button" class="btn btn-success" @onclick="()=>saveorUpdate(P)">Agregar</button>
+</form>
+</div>
+
+<form class="form">
+	<table>
+		<thead class="thead-dark">
+			<tr>
+				<th scope="col">Nombre</th>
+				<th scope="col">Apellido</th>
+				<th scope="col">Ciudad</th>
+				<th scope="col">Acción</th>
+			</tr>
+		</thead>
+		@foreach (Persona p in traerPersonas())
+		{
+			<tr>
+				<td>@p.Nombre</td>
+				<td>@p.Apellido</td>
+				<td>@p.Ciudad</td>
+				<td><button class="btn-warning" @onclick="()=>edit(p)">Editar</button></td>
+				<td><button class="btn-danger" @onclick="()=>delete(p.Id)">Borrar</button></td>
+			</tr>
+		}
+	</table>
+</form>
+
+@code {
+
+	List<Persona> lista = new List<Persona>();
+	Persona P = new Persona();
+
+	//traigo el listado de personas
+	private List<Persona> traerPersonas()
+	{
+		return lista = pmapper.getAllPeople();
+	}
+
+	private void delete(int id)
+	{
+		pmapper.delete(id);
+		lista.RemoveAll(x => x.Id == id);
+	}
+
+	private void saveorUpdate(Persona t)
+	{
+		if (t.Nombre == null || t.Apellido == null || t.Ciudad == null)
+		{
+			return;
+		}
+
+		pmapper.saveorUpdate(t);
+		P = new Persona();
+		traerPersonas();
+	}
+
+	private void edit(Persona t)
+	{
+		P = pmapper.searchPerson(t.Id);
+		return;
+	}
+	}
